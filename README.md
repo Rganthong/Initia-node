@@ -108,6 +108,7 @@ sudo systemctl daemon-reload && \
 sudo systemctl enable initiad && \
 sudo systemctl restart initiad && \
 sudo journalctl -u initiad -f -o cat
+```
 
 ## State sync
 
