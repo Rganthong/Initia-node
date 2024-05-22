@@ -153,9 +153,27 @@ mv $HOME/.initia/priv_validator_state.json.backup $HOME/.initia/data/priv_valida
 sudo systemctl restart initiad && sudo journalctl -u initiad -f -o cat
 ```
 ### if node doesn't display like this
-```py 2:39PM INF sync any module=statesync msg="Discovering snapshots for 15s" server=node 2:39PM INF Discovered new snapshot format=3 hash="?^ I \r = O E ? CQD 6 \x18 F: \x006 " height=602000 module =statesync server=node 2:39PM INF Discovered new snapshot format=3 hash="% \x16\x03 T0 v f C 5 <TlLb 5 l! M" height=600000 module=statesync server=node 2:42PM INF VerifyHeader hash=CFC07DAB03CEB02F53273F5BDB6A7C16E6E02535B8A88614800ABA9C705D4AF7 height=602001 module=light server=node ``` 
+```py
+2:39PM INF sync any module=statesync msg="Discovering snapshots for 15s" server=node
+2:39PM INF Discovered new snapshot format=3 hash="?^��I��\r�=�O�E�?�CQD�6�\x18�F:��\x006�" height=602000 module=statesync server=node
+2:39PM INF Discovered new snapshot format=3 hash="%���\x16\x03�T0�v�f�C��5�<TlLb�5��l!�M" height=600000 module=statesync server=node
+2:42PM INF VerifyHeader hash=CFC07DAB03CEB02F53273F5BDB6A7C16E6E02535B8A88614800ABA9C705D4AF7 height=602001 module=light server=node
+```
 ### you should use snapshots
+### before you use snapshots, please stop your node
 ### Stop the service and reset the data
-```sudo systemctl stop initiad.service
+```bash
+sudo systemctl stop initiad.service
 cp $HOME/.initia/data/priv_validator_state.json $HOME/.initia/priv_validator_state.json.backup
-rm -rf $HOME/.initia/data```
+rm -rf $HOME/.initia/data
+```
+### Download latest snapshot
+```bash
+curl -L https://snapshots.kzvn.xyz/initia/initiation-1_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.initia
+mv $HOME/.initia/priv_validator_state.json.backup $HOME/.initia/data/priv_validator_state.json
+```
+### wait to finish
+### Restart the service and check the log
+```bash
+sudo systemctl restart initiad.service && sudo journalctl -u initiad.service -f --no-hostname -o cat
+```
