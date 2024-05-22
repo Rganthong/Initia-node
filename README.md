@@ -177,3 +177,42 @@ mv $HOME/.initia/priv_validator_state.json.backup $HOME/.initia/data/priv_valida
 ```bash
 sudo systemctl restart initiad.service && sudo journalctl -u initiad.service -f --no-hostname -o cat
 ```
+
+### after all create your wallet
+```bash
+initiad keys add $WALLET_NAME
+
+# DO NOT FORGET TO SAVE THE SEED PHRASE
+# You can add --recover flag to restore existing key instead of creating
+```
+### 15. Request tokens from the faucet on Discord
+-> <a href="https://faucet.testnet.initia.xyz/"><font size="4"><b><u>FAUCET</u></b></font></a> <-
+### 16. Check wallet balance
+```bash
+initiad status | jq -r .sync_info
+```
+```bash
+initiad q bank balances $(initiad keys show $WALLET_NAME -a) 
+```
+### 17. Create a validator
+```bash
+initiad tx mstaking create-validator \
+--amount 1000000uinit \
+--pubkey $(initiad tendermint show-validator) \
+--moniker "YOUR_MONIKER_NAME" \
+--identity "YOUR_KEYBASE_ID" \
+--details "YOUR_DETAILS" \
+--website "YOUR_WEBSITE_URL" \
+--chain-id initiation-1 \
+--commission-rate 0.05 \
+--commission-max-rate 0.20 \
+--commission-max-change-rate 0.05 \
+--from wallet \
+ --gas=2000000 --fees=300000uinit \
+--node https://rpc.dinhcongtac221.fun/ \
+-y
+```
+### conglatulation. now your validator finished
+
+
+### P.S. if you don't have keybase you can create with following this guide [keybaseguide](https://medium.com/@AVIAONE/how-to-display-logo-and-moniker-on-blockchain-explorer-with-keybase-aviaone-1a89c4e9c11)
