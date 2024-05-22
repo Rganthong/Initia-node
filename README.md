@@ -16,13 +16,13 @@ here I will try to give tuorial to work on initia node
 ```
 ## Installation guide
 
-### 1. Install required packages
+### Install required packages
 ```bash
 sudo apt update && \
 sudo apt install curl git jq build-essential gcc unzip wget lz4 -y
 ```
 
-### 2. Install Go
+### Install Go
 ```bash
 cd $HOME && \
 ver="1.22.0" && \
@@ -35,7 +35,7 @@ source $HOME/.bash_profile && \
 go version
 ```
 
-### 3. Install `initia` binary
+### Install `initia` binary
 ```bash
 git clone https://github.com/initia-labs/initia.git
 cd initia
@@ -44,7 +44,7 @@ make install
 initiad version
 ```
 
-### 4. Set up variables
+### Set up variables
 ```bash
 # Customize if you need
 echo 'export MONIKER="My_Node"' >> ~/.bash_profile
@@ -54,7 +54,7 @@ echo 'export RPC_PORT="26657"' >> ~/.bash_profile
 source $HOME/.bash_profile
 ```
 
-### 5. Initialize the node
+### Initialize the node
 ```bash
 cd $HOME
 initiad init $MONIKER --chain-id $CHAIN_ID
@@ -63,12 +63,12 @@ initiad config set client node tcp://localhost:$RPC_PORT
 initiad config set client keyring-backend os # You can set it to "test" so you will not be asked for a password
 ```
 
-### 6. Download genesis.json
+### Download genesis.json
 ```bash
 wget https://initia.s3.ap-southeast-1.amazonaws.com/initiation-1/genesis.json -O $HOME/.initia/config/genesis.json
 ```
 
-### 7. Add seeds and peers to the config.toml
+### Add seeds and peers to the config.toml
 ```bash
 PEERS="e3ac92ce5b790c76ce07c5fa3b257d83a517f2f6@178.18.251.146:30656,2692225700832eb9b46c7b3fc6e4dea2ec044a78@34.126.156.141:26656,2a574706e4a1eba0e5e46733c232849778faf93b@84.247.137.184:53456,40d3f977d97d3c02bd5835070cc139f289e774da@168.119.10.134:26313,1f6633bc18eb06b6c0cab97d72c585a6d7a207bc@65.109.59.22:25756,4a988797d8d8473888640b76d7d238b86ce84a2c@23.158.24.168:26656,e3679e68616b2cd66908c460d0371ac3ed7795aa@176.34.17.102:26656,d2a8a00cd5c4431deb899bc39a057b8d8695be9e@138.201.37.195:53456,329227cf8632240914511faa9b43050a34aa863e@43.131.13.84:26656,517c8e70f2a20b8a3179a30fe6eb3ad80c407c07@37.60.231.212:26656,07632ab562028c3394ee8e78823069bfc8de7b4c@37.27.52.25:19656,028999a1696b45863ff84df12ebf2aebc5d40c2d@37.27.48.77:26656,3c44f7dbb473fee6d6e5471f22fa8d8095bd3969@185.219.142.137:53456,8db320e665dbe123af20c4a5c667a17dc146f4d0@51.75.144.149:26656,c424044f3249e73c050a7b45eb6561b52d0db456@158.220.124.183:53456,767fdcfdb0998209834b929c59a2b57d474cc496@207.148.114.112:26656,edcc2c7098c42ee348e50ac2242ff897f51405e9@65.109.34.205:36656,140c332230ac19f118e5882deaf00906a1dba467@185.219.142.119:53456,4eb031b59bd0210481390eefc656c916d47e7872@37.60.248.151:53456,ff9dbc6bb53227ef94dc75ab1ddcaeb2404e1b0b@178.170.47.171:26656,ffb9874da3e0ead65ad62ac2b569122f085c0774@149.28.134.228:26656" && \
 SEEDS="2eaa272622d1ba6796100ab39f58c75d458b9dbc@34.142.181.82:26656,c28827cb96c14c905b127b92065a3fb4cd77d7f6@testnet-seeds.whispernode.com:25756" && \
@@ -78,12 +78,12 @@ sed -i \
     "$HOME/.initia/config/config.toml"
 ```
 
-### 10. Set min gas price 
+### Set min gas price 
 ```bash
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.15uinit,0.01uusdc\"/" $HOME/.initia/config/app.toml
 ```
 
-### 12. Create a service file
+### Create a service file
 ```bash
 sudo tee /etc/systemd/system/initiad.service > /dev/null <<EOF
 [Unit]
@@ -102,7 +102,7 @@ WantedBy=multi-user.target
 EOF
 ```
 
-### 13. Start the node
+### Start the node
 ```bash
 sudo systemctl daemon-reload && \
 sudo systemctl enable initiad && \
@@ -115,15 +115,18 @@ sudo journalctl -u initiad -f -o cat
 ```bash
 sudo systemctl stop initiad
 ```
-### 2. Backup priv_validator_state.json 
+
+### Backup priv_validator_state.json 
 ```bash
 cp $HOME/.initia/data/priv_validator_state.json $HOME/.initia/priv_validator_state.json.backup
 ```
-### 3. Reset DB
+
+### Reset DB
 ```bash
 initiad tendermint unsafe-reset-all --home $HOME/.initia --keep-addr-book
 ```
-### 4. Setup required variables (One command)
+
+### Setup required variables (One command)
 ```bash
 PEERS="a63a6f6eae66b5dce57f5c568cdb0a79923a4e18@peer-initia-testnet.trusted-point.com:26628" && \
 RPC="https://rpc-initia-testnet.trusted-point.com:443" && \
@@ -144,35 +147,40 @@ else
     echo -e "\nError: One or more variables are empty. Please try again or change RPC\nExiting...\n"
 fi
 ```
-### 4. Move priv_validator_state.json back
+
+### Move priv_validator_state.json back
 ```bash
 mv $HOME/.initia/priv_validator_state.json.backup $HOME/.initia/data/priv_validator_state.json
 ```
-### 5. Start the node
+
+### Start the node
 ```bash
 sudo systemctl restart initiad && sudo journalctl -u initiad -f -o cat
 ```
-### if node doesn't display like this
+if node doesn't display like this
 ```py
 2:39PM INF sync any module=statesync msg="Discovering snapshots for 15s" server=node
 2:39PM INF Discovered new snapshot format=3 hash="?^��I��\r�=�O�E�?�CQD�6�\x18�F:��\x006�" height=602000 module=statesync server=node
 2:39PM INF Discovered new snapshot format=3 hash="%���\x16\x03�T0�v�f�C��5�<TlLb�5��l!�M" height=600000 module=statesync server=node
 2:42PM INF VerifyHeader hash=CFC07DAB03CEB02F53273F5BDB6A7C16E6E02535B8A88614800ABA9C705D4AF7 height=602001 module=light server=node
 ```
-### you should use snapshots
-### before you use snapshots, please stop your node
+ you should use snapshots
+ before you use snapshots, please stop your node
+ 
 ### Stop the service and reset the data
 ```bash
 sudo systemctl stop initiad.service
 cp $HOME/.initia/data/priv_validator_state.json $HOME/.initia/priv_validator_state.json.backup
 rm -rf $HOME/.initia/data
 ```
+
 ### Download latest snapshot
 ```bash
 curl -L https://snapshots.kzvn.xyz/initia/initiation-1_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.initia
 mv $HOME/.initia/priv_validator_state.json.backup $HOME/.initia/data/priv_validator_state.json
 ```
-### wait to finish
+wait to finish
+
 ### Restart the service and check the log
 ```bash
 sudo systemctl restart initiad.service && sudo journalctl -u initiad.service -f --no-hostname -o cat
@@ -180,21 +188,21 @@ sudo systemctl restart initiad.service && sudo journalctl -u initiad.service -f 
 
 ### after all create your wallet
 ```bash
-initiad keys add $WALLET_NAME
-
-# DO NOT FORGET TO SAVE THE SEED PHRASE
-# You can add --recover flag to restore existing key instead of creating
+ initiad keys add wallet
 ```
-### 15. Request tokens from the faucet on Discord
+
+### Request tokens from the faucet on Discord
 -> <a href="https://faucet.testnet.initia.xyz/"><font size="4"><b><u>FAUCET</u></b></font></a> <-
-### 16. Check wallet balance
+
+### Check wallet balance
 ```bash
 initiad status | jq -r .sync_info
 ```
 ```bash
 initiad q bank balances $(initiad keys show $WALLET_NAME -a) 
 ```
-### 17. Create a validator
+
+### Create a validator
 ```bash
 initiad tx mstaking create-validator \
 --amount 1000000uinit \
@@ -212,7 +220,8 @@ initiad tx mstaking create-validator \
 --node https://rpc.dinhcongtac221.fun/ \
 -y
 ```
+
 ### conglatulation. now your validator finished
 
 
-### P.S. if you don't have keybase you can create with following this guide [keybaseguide](https://medium.com/@AVIAONE/how-to-display-logo-and-moniker-on-blockchain-explorer-with-keybase-aviaone-1a89c4e9c11)
+P.S. if you don't have keybase you can create with following this guide [keybaseguide](https://medium.com/@AVIAONE/how-to-display-logo-and-moniker-on-blockchain-explorer-with-keybase-aviaone-1a89c4e9c11)
