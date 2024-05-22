@@ -109,3 +109,53 @@ sudo systemctl enable initiad && \
 sudo systemctl restart initiad && \
 sudo journalctl -u initiad -f -o cat
 
+## State sync
+
+### 1. Stop the node
+```bash
+sudo systemctl stop initiad
+```
+### 2. Backup priv_validator_state.json 
+```bash
+cp $HOME/.initia/data/priv_validator_state.json $HOME/.initia/priv_validator_state.json.backup
+```
+### 3. Reset DB
+```bash
+initiad tendermint unsafe-reset-all --home $HOME/.initia --keep-addr-book
+```
+### 4. Setup required variables (One command)
+```bash
+PEERS="a63a6f6eae66b5dce57f5c568cdb0a79923a4e18@peer-initia-testnet.trusted-point.com:26628" && \
+RPC="https://rpc-initia-testnet.trusted-point.com:443" && \
+LATEST_HEIGHT=$(curl -s --max-time 3 --retry 2 --retry-connrefused $RPC/block | jq -r .result.block.header.height) && \
+TRUST_HEIGHT=$((LATEST_HEIGHT - 1500)) && \
+TRUST_HASH=$(curl -s --max-time 3 --retry 2 --retry-connrefused "$RPC/block?height=$TRUST_HEIGHT" | jq -r .result.block_id.hash) && \
+
+if [ -n "$PEERS" ] && [ -n "$RPC" ] && [ -n "$LATEST_HEIGHT" ] && [ -n "$TRUST_HEIGHT" ] && [ -n "$TRUST_HASH" ]; then
+    sed -i.bak \
+        -e "/\[statesync\]/,/^\[/{s/\(enable = \).*$/\1true/}" \
+        -e "/^rpc_servers =/ s|=.*|= \"$RPC,$RPC\"|;" \
+        -e "/^trust_height =/ s/=.*/= $TRUST_HEIGHT/;" \
+        -e "/^trust_hash =/ s/=.*/= \"$TRUST_HASH\"/" \
+        -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" \
+        $HOME/.initia/config/config.toml
+    echo -e "\nLATEST_HEIGHT: $LATEST_HEIGHT\nTRUST_HEIGHT: $TRUST_HEIGHT\nTRUST_HASH: $TRUST_HASH\nPEERS: $PEERS\n\nALL IS FINE"
+else
+    echo -e "\nError: One or more variables are empty. Please try again or change RPC\nExiting...\n"
+fi
+```
+### 4. Move priv_validator_state.json back
+```bash
+mv $HOME/.initia/priv_validator_state.json.backup $HOME/.initia/data/priv_validator_state.json
+```
+### 5. Start the node
+```bash
+sudo systemctl restart initiad && sudo journalctl -u initiad -f -o cat
+```
+### if node doesn't display like this
+```py 2:39PM INF sync any module=statesync msg="Discovering snapshots for 15s" server=node 2:39PM INF Discovered new snapshot format=3 hash="?^ I \r = O E ? CQD 6 \x18 F: \x006 " height=602000 module =statesync server=node 2:39PM INF Discovered new snapshot format=3 hash="% \x16\x03 T0 v f C 5 <TlLb 5 l! M" height=600000 module=statesync server=node 2:42PM INF VerifyHeader hash=CFC07DAB03CEB02F53273F5BDB6A7C16E6E02535B8A88614800ABA9C705D4AF7 height=602001 module=light server=node ``` 
+### you should use snapshots
+### Stop the service and reset the data
+```sudo systemctl stop initiad.service
+cp $HOME/.initia/data/priv_validator_state.json $HOME/.initia/priv_validator_state.json.backup
+rm -rf $HOME/.initia/data```
