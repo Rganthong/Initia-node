@@ -167,6 +167,9 @@ if node doesn't display like this
 ```
  you should use snapshots
  before you use snapshots, please stop your node
+
+ ### snapshots
+ before use snapshots. you need stop your node
  
 ### Stop the service and reset the data
 ```bash
